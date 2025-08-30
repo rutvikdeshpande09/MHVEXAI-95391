@@ -1,0 +1,18 @@
+{
+	"project": {
+		"name": "mecanamTestDriveV1",
+		"slot": 1,
+		"description": "",
+		"platform": "V5",
+		"creationDate": "Fri, 29 Aug 2025 04:27:53 GMT",
+		"language": "cpp",
+		"sdkVersion": "V5_20240802_15_00_00",
+		"cpp": {
+			"includePath": []
+		}
+	},
+	"extension": {
+		"version": "0.7.2025041600",
+		"json": 1
+	}
+}
