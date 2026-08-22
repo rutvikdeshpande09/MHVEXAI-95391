@@ -1,6 +1,6 @@
 export enum Element {
-  BallBlue = 0,
-  BallRed = 1,
+  Cups = 0,
+  Pin = 1,
 }
 
 export enum Direction {

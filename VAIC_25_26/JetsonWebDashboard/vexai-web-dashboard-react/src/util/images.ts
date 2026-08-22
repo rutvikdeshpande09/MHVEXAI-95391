@@ -4,8 +4,8 @@ import Robot from "../images/HeroBot-Top.png";
 import Field from "../images/FieldTopDown-Cleared.png";
 import Compass from "../images/compass.png";
 import Ruler from "../images/ruler.png";
-import BallBlue from "../images/BlueBall-Top.png";
-import BallRed from "../images/RedBall-Top.png";
+import CupsImg from "../images/Cups-Top.svg";
+import PinImg from "../images/Pin-Top.svg";
 
 export const images = {
   icons: {},
@@ -18,8 +18,8 @@ export const images = {
     ruler: Ruler,
   },
   elements: {
-    redBall: BallRed,
-    blueBall: BallBlue,
+    cups: CupsImg,
+    pin: PinImg,
   },
   robot: Robot,
   field: Field,

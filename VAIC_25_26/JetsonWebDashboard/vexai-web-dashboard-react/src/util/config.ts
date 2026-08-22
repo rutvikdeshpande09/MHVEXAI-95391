@@ -76,28 +76,28 @@ export const config = {
   },
   elements: {
     textures: {
-      [Element.BallBlue]: images.elements.blueBall,
-      [Element.BallRed]: images.elements.redBall,
+      [Element.Cups]: images.elements.cups,
+      [Element.Pin]: images.elements.pin,
     },
     size: {
-      [Element.BallBlue]: {
+      [Element.Cups]: {
         height: 0.08255,
         width: 0.08255,
         scale: 2.0,
       },
-      [Element.BallRed]: {
+      [Element.Pin]: {
         height: 0.08255,
         width: 0.08255,
         scale: 2.0
       },
     },
     borderColors: {
-      [Element.BallRed]: "rgba(255, 0, 0, .8)",
-      [Element.BallBlue]: "rgba(0, 0, 255, .8)",
+      [Element.Cups]: "rgba(0, 200, 0, .8)",
+      [Element.Pin]: "rgba(255, 165, 0, .8)",
     },
     backgroundColors: {
-      [Element.BallRed]: "rgba(255, 0, 0, .3)",
-      [Element.BallBlue]: "rgba(0, 0, 255, .3)",
+      [Element.Cups]: "rgba(0, 200, 0, .3)",
+      [Element.Pin]: "rgba(255, 165, 0, .3)",
     },
     label: {
       textColors: {
@@ -105,8 +105,8 @@ export const config = {
         black: "rgba(0, 0, 0, 1)",
       },
       text: {
-        [Element.BallRed]: "Red Ball",
-        [Element.BallBlue]: "Blue Ball",
+        [Element.Cups]: "Cups",
+        [Element.Pin]: "Pin",
       },
     },
   },

@@ -20,15 +20,15 @@ interface DetectionLayerProps {
 const DetectionLayer = ({ fieldWidth, fieldHeight }: DetectionLayerProps) => {
   const detections = useAppSelector((state) => state.data.response.detections);
   const scale = useAppSelector((state) => state.app.scale);
-  const [redPickup] = useImage(config.elements.textures[Element.BallRed]);
-  const [bluePickup] = useImage(config.elements.textures[Element.BallBlue]);
+  const [cupsPickup] = useImage(config.elements.textures[Element.Cups]);
+  const [pinPickup] = useImage(config.elements.textures[Element.Pin]);
 
   const getImage = (detectionClass: number) => {
     switch (detectionClass) {
-      case Element.BallRed:
-        return redPickup;
-      case Element.BallBlue:
-        return bluePickup;
+      case Element.Cups:
+        return cupsPickup;
+      case Element.Pin:
+        return pinPickup;
       default:
         break;
     }

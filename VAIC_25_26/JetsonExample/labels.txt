@@ -1,2 +1,2 @@
-BallBlue
-BallRed
+cups
+pin
