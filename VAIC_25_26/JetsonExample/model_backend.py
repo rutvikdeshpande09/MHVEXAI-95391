@@ -64,7 +64,7 @@ class CUDABackend(ModelBackend):
                         return None
 
                 # Set input shape for the network
-                network.get_input(0).shape = [1, 320, 320, 3]
+                network.get_input(0).shape = [1, 3, 320, 320]
 
                 # Build and serialize the network, then create and return the engine
                 plan = builder.build_serialized_network(network, config)
