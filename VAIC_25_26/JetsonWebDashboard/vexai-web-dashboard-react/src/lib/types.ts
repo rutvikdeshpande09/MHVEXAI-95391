@@ -1,6 +1,9 @@
 export enum Element {
-  Cups = 0,
-  Pin = 1,
+  RedYellowPin = 0,
+  Cup = 1,
+  BlueYellowPin = 2,
+  YellowPin = 3,
+  RedBluePin = 4,
 }
 
 export enum Direction {

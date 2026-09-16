@@ -8,7 +8,6 @@ import { v4 as uuidv4 } from "uuid";
 import { config } from "../../util/config";
 import { PhotoCamera } from "@mui/icons-material";
 import Konva from "konva";
-import { Jimp } from "jimp";
 
 interface CameraProps {
   img: Image;
@@ -58,11 +57,30 @@ const Camera = ({ img, detections }: CameraProps) => {
      if (canvasRef.current && ref.current) {
       const canvasCopy: Konva.Stage = canvasRef.current.clone();
       const cameraCopy = ref.current.src;
-      const canvasImage = await Jimp.read(canvasCopy.toDataURL({mimeType: "image/png"}));
-      const cameraImage = await Jimp.read(cameraCopy);
-      cameraImage.resize({w: canvasImage.width, h: canvasImage.height})
-      cameraImage.composite(canvasImage);
-      const base64 = await cameraImage.getBase64("image/png");
+      const overlay = new window.Image();
+      overlay.src = canvasCopy.toDataURL({ mimeType: "image/png" });
+      await new Promise<void>((resolve, reject) => {
+        overlay.onload = () => resolve();
+        overlay.onerror = () => reject(new Error("Unable to load detection overlay"));
+      });
+
+      const cameraImage = new window.Image();
+      cameraImage.src = cameraCopy;
+      await new Promise<void>((resolve, reject) => {
+        cameraImage.onload = () => resolve();
+        cameraImage.onerror = () => reject(new Error("Unable to load camera image"));
+      });
+
+      const output = document.createElement("canvas");
+      output.width = overlay.width;
+      output.height = overlay.height;
+      const context = output.getContext("2d");
+      if (!context) {
+        throw new Error("Unable to create image canvas");
+      }
+      context.drawImage(cameraImage, 0, 0, output.width, output.height);
+      context.drawImage(overlay, 0, 0);
+      const base64 = output.toDataURL("image/png");
 
       const currentDate = new Date().toISOString();
       const link = document.createElement("a");

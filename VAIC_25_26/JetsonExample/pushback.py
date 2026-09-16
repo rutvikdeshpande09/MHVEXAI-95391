@@ -48,7 +48,8 @@ class Processing:
         self.depth_scale = depth_scale
         self.align_to = rs.stream.color
         self.align = rs.align(self.align_to)  # Align depth frames to color stream
-        self.model = Model()  # Initialize the object detection model
+        # RealSense is configured with the rgb8 stream, unlike OpenCV's BGR frames.
+        self.model = Model(input_is_rgb=True)  # Initialize the object detection model
         self.HUE = 0
         self.SATURATION = 0
         self.VALUE = 0

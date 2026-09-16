@@ -76,28 +76,52 @@ export const config = {
   },
   elements: {
     textures: {
-      [Element.Cups]: images.elements.cups,
-      [Element.Pin]: images.elements.pin,
+      [Element.RedYellowPin]: images.elements.pin,
+      [Element.Cup]: images.elements.cups,
+      [Element.BlueYellowPin]: images.elements.pin,
+      [Element.YellowPin]: images.elements.pin,
+      [Element.RedBluePin]: images.elements.pin,
     },
     size: {
-      [Element.Cups]: {
+      [Element.RedYellowPin]: {
         height: 0.08255,
         width: 0.08255,
         scale: 2.0,
       },
-      [Element.Pin]: {
+      [Element.Cup]: {
+        height: 0.08255,
+        width: 0.08255,
+        scale: 2.0,
+      },
+      [Element.BlueYellowPin]: {
+        height: 0.08255,
+        width: 0.08255,
+        scale: 2.0
+      },
+      [Element.YellowPin]: {
+        height: 0.08255,
+        width: 0.08255,
+        scale: 2.0
+      },
+      [Element.RedBluePin]: {
         height: 0.08255,
         width: 0.08255,
         scale: 2.0
       },
     },
     borderColors: {
-      [Element.Cups]: "rgba(0, 200, 0, .8)",
-      [Element.Pin]: "rgba(255, 165, 0, .8)",
+      [Element.RedYellowPin]: "rgba(255, 165, 0, .8)",
+      [Element.Cup]: "rgba(0, 200, 0, .8)",
+      [Element.BlueYellowPin]: "rgba(0, 119, 200, .8)",
+      [Element.YellowPin]: "rgba(255, 220, 0, .8)",
+      [Element.RedBluePin]: "rgba(162, 107, 255, .8)",
     },
     backgroundColors: {
-      [Element.Cups]: "rgba(0, 200, 0, .3)",
-      [Element.Pin]: "rgba(255, 165, 0, .3)",
+      [Element.RedYellowPin]: "rgba(255, 165, 0, .3)",
+      [Element.Cup]: "rgba(0, 200, 0, .3)",
+      [Element.BlueYellowPin]: "rgba(0, 119, 200, .3)",
+      [Element.YellowPin]: "rgba(255, 220, 0, .3)",
+      [Element.RedBluePin]: "rgba(162, 107, 255, .3)",
     },
     label: {
       textColors: {
@@ -105,8 +129,11 @@ export const config = {
         black: "rgba(0, 0, 0, 1)",
       },
       text: {
-        [Element.Cups]: "Cups",
-        [Element.Pin]: "Pin",
+        [Element.RedYellowPin]: "RedYellowPin",
+        [Element.Cup]: "Cup",
+        [Element.BlueYellowPin]: "BlueYellowPin",
+        [Element.YellowPin]: "YellowPin",
+        [Element.RedBluePin]: "RedBluePin",
       },
     },
   },

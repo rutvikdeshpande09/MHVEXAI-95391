@@ -1,9 +1,18 @@
 import numpy as np
 import cv2
 import sys
+from data_processing import PreprocessYOLO, PostprocessYOLO
 from model_backend import CUDABackend, CoralBackend, USE_CUDA, USE_CORAL
 
 np.set_printoptions(threshold=sys.maxsize)
+
+CLASS_NAMES = {
+    0: "RedYellowPin",
+    1: "Cup",
+    2: "BlueYellowPin",
+    3: "YellowPin",
+    4: "RedBluePin",
+}
 
 class rawDetection:
     def __init__(self, x: int, y: int, center: list, width: int, height: int, prob: float, classID: int):
@@ -16,7 +25,7 @@ class rawDetection:
         self.ClassID = classID
 
 class Model:
-    def __init__(self):
+    def __init__(self, input_is_rgb=False):
         if USE_CUDA:
             self.backend = CUDABackend()
             print("Using CUDA for model inferencing")
@@ -24,65 +33,75 @@ class Model:
             self.backend = CoralBackend()
             print("Using Coral Edge TPU for model inferencing")
         else:
-            print("No backend found!")
+            raise RuntimeError(
+                "No inference backend found. Install CUDA/TensorRT for Jetson "
+                "or connect a Coral Edge TPU."
+            )
+
+        self.input_resolution_yolov3_HW = (320, 320)
+        self.input_is_rgb = input_is_rgb
+        self.preprocessor = PreprocessYOLO(self.input_resolution_yolov3_HW)
+        self.postprocessor = PostprocessYOLO()
 
     def inference(self, inputImage):
-        orig_h, orig_w = inputImage.shape[:2]
+        image_raw, image_tensor, scale, pad_x, pad_y = self.preprocessor.process(
+            inputImage, self.backend.dtype, input_is_rgb=self.input_is_rgb
+        )
+        shape_orig_WH = (image_raw.shape[1], image_raw.shape[0])
 
-        img = cv2.cvtColor(inputImage, cv2.COLOR_BGR2RGB)
-        img = cv2.resize(img, (320, 320))
-        img = img.astype(np.float32) / 255.0
-
-        outputs = self.backend.inference(img)
-        
-        # CRITICAL FIX: Reshape to (6 channels, 500 detections) then transpose to (500, 6)
-        raw_output = outputs[0].reshape(6, -1).transpose()
-        
+        outputs = self.backend.inference(image_tensor)
         Detections = []
-        conf_threshold = 0.45
 
-        for det in raw_output:
-            conf = float(det[4])
-            
-            if np.isnan(conf) or conf < conf_threshold:
+        if not outputs:
+            return inputImage, Detections
+
+        boxes, classes, scores = self.postprocessor.process(
+            outputs, shape_orig_WH, scale, pad_x, pad_y
+        )
+
+        if boxes.size == 0:
+            return inputImage, Detections
+
+        for box, score, category in zip(boxes, scores, classes):
+            cat_id = int(category)
+            if cat_id not in CLASS_NAMES:
                 continue
-                
-            cx, cy, w, h = det[0:4]
-            class_id = int(det[5])
 
-            if cx <= 1.0 and cy <= 1.0 and w <= 1.0 and h <= 1.0:
-                cx *= orig_w
-                cy *= orig_h
-                w *= orig_w
-                h *= orig_h
-            else:
-                cx *= (orig_w / 320.0)
-                cy *= (orig_h / 320.0)
-                w *= (orig_w / 320.0)
-                h *= (orig_h / 320.0)
+            x_coord, y_coord, width, height = box
+            orig_w, orig_h = shape_orig_WH
 
-            # Clamp coordinates to ensure valid, non-zero area bounding boxes
-            left = max(0, min(orig_w - 2, int(cx - (w / 2))))
-            top = max(0, min(orig_h - 2, int(cy - (h / 2))))
-            right = max(left + 1, min(orig_w, int(cx + (w / 2))))
-            bottom = max(top + 1, min(orig_h, int(cy + (h / 2))))
+            left = max(0, min(orig_w - 2, int(np.floor(x_coord + 0.5))))
+            top = max(0, min(orig_h - 2, int(np.floor(y_coord + 0.5))))
+            right = max(left + 1, min(orig_w, int(np.floor(x_coord + width + 0.5))))
+            bottom = max(top + 1, min(orig_h, int(np.floor(y_coord + height + 0.5))))
 
             width_px = right - left
             height_px = bottom - top
+            cx = x_coord + (width / 2.0)
+            cy = y_coord + (height / 2.0)
+            class_name = CLASS_NAMES[cat_id]
 
             cv2.rectangle(inputImage, (left, top), (right, bottom), (0, 255, 0), 2)
-            cv2.putText(inputImage, f"ID:{class_id} ({conf:.2f})", (left, max(12, top - 5)), 
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.4, (0, 255, 0), 1)
+            cv2.putText(
+                inputImage,
+                f"{class_name} ({score:.2f})",
+                (left, max(12, top - 5)),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                0.5,
+                (0, 255, 0),
+                2
+            )
 
             raw_det = rawDetection(
-                x=left, 
-                y=top, 
-                center=[float(cx), float(cy)], 
-                width=int(width_px), 
-                height=int(height_px), 
-                prob=float(conf), 
-                classID=class_id
+                x=left,
+                y=top,
+                center=[float(cx), float(cy)],
+                width=int(width_px),
+                height=int(height_px),
+                prob=float(score),
+                classID=cat_id
             )
             Detections.append(raw_det)
+            print(f"DETECTED: {class_name} | Conf: {score:.2f} | Box: [{left}, {top}, {width_px}, {height_px}]")
 
         return inputImage, Detections

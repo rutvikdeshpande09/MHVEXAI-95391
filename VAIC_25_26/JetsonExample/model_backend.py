@@ -73,12 +73,25 @@ class CUDABackend(ModelBackend):
                     f.write(plan)
                 return engine
 
-        # Check if a serialized engine file exists and load it if so, otherwise build a new one
-        if os.path.exists(engine_file_path):
+        # Rebuild when the ONNX model is newer than the cached plan. TensorRT
+        # plans are device/model-specific and must not silently outlive ONNX changes.
+        model_exists = os.path.exists(onnx_file_path)
+        engine_is_current = (
+            model_exists
+            and os.path.exists(engine_file_path)
+            and os.path.getmtime(engine_file_path) >= os.path.getmtime(onnx_file_path)
+        )
+        if engine_is_current:
             with open(engine_file_path, "rb") as f, trt.Runtime(TRT_LOGGER) as runtime:
-                return runtime.deserialize_cuda_engine(f.read())
-        else:
-            return build_engine()
+                engine = runtime.deserialize_cuda_engine(f.read())
+            if engine is not None:
+                print("Loaded TensorRT engine:", engine_file_path)
+                return engine
+            print("Cached TensorRT engine could not be loaded; rebuilding it.")
+        elif os.path.exists(engine_file_path):
+            print("Cached TensorRT engine is older than the ONNX model; rebuilding it.")
+
+        return build_engine()
 
     def __init__(self):
         current_folder_path = os.path.dirname(os.path.abspath(__file__))
@@ -87,6 +100,8 @@ class CUDABackend(ModelBackend):
 
         # Get the TensorRT engine
         self.engine = CUDABackend.get_engine(onnx_file_path, engine_file_path)
+        if self.engine is None:
+            raise RuntimeError("TensorRT failed to create an engine from " + onnx_file_path)
 
         # Create an execution context
         self.context = self.engine.create_execution_context()
