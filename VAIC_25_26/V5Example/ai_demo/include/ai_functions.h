@@ -14,8 +14,14 @@
 #include <robot-config.h>
 
 enum OBJECT {
-    BallBlue,
-    BallRed
+    RedYellowPin,
+    Cup,
+    BlueYellowPin,
+    YellowPin,
+    RedBluePin,
+    BlueToggle,
+    RedToggle,
+    YellowToggle
 };
 
 using namespace vex;
