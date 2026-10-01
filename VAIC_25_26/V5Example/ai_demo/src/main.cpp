@@ -68,7 +68,7 @@ void auto_Isolation(void) {
   // Optional wait to allow for calibration
   waitUntil(!(GPS.isCalibrating()));
 
-  goToObject(OBJECT::BallBlue);
+  goToObject(OBJECT::YellowToggle);
   runIntake(directionType::fwd, 3, true);
   goToGoal();
   Drivetrain.driveFor(-115, distanceUnits::cm);
